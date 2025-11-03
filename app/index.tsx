@@ -1,29 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { MapView } from '@maplibre/maplibre-react-native';
 
 export default function Index() {
   const MAPTILER_API_KEY = 'cVxKrO7kxSIAfQTy4QJP';
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.mapcontainer}>
-        <MapView
-          style={styles.map}
-          mapStyle={`https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`}
-          logoEnabled={false}
-          attributionPosition={{ bottom: 8, right: 8 }}
-        >
-          {/* <Camera
-            centerCoordinate={[2, 41.5]}
-            zoomLevel={8}
-            animationDuration={2000}
-            // animationMode='easeTo'
-          /> */}
-        </MapView>
-      </View>
-    </View>
-  );
+  return <MapView style={{ flex: 1 }} />;
 }
 
 const styles = StyleSheet.create({
