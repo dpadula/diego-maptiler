@@ -10,38 +10,33 @@ import {
 import type { FeatureCollection, LineString } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
 import FloatingButtons from '../components/FloatingButtons';
+import {
+  DATAVIZ_DARK_URL,
+  SATELLITE_URL,
+  STREETS_V4_URL,
+} from '../data/constants';
 
 export default function Index() {
-  const MAPTILER_API_KEY = 'cVxKrO7kxSIAfQTy4QJP';
   const mapRef = useRef<MapViewRef | null>(null);
-  const [mapStyle, setMapStyle] = useState<string>(
-    'https://api.maptiler.com/maps/streets-v4/style.json?key=' +
-      MAPTILER_API_KEY
-  );
+  const [mapStyle, setMapStyle] = useState<string>(STREETS_V4_URL);
   const [zoom, setZoom] = useState(16);
   const [showRoute, setShowRoute] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
-      prev.includes('streets')
-        ? `https://api.maptiler.com/maps/satellite/style.json?key=${MAPTILER_API_KEY}`
-        : `https://api.maptiler.com/maps/streets-v4/style.json?key=${MAPTILER_API_KEY}`
+      prev.includes('streets') ? SATELLITE_URL : STREETS_V4_URL
     );
   };
 
   useEffect(() => {
     if (darkMode) {
-      setMapStyle(
-        `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${MAPTILER_API_KEY}`
-      );
+      setMapStyle(DATAVIZ_DARK_URL);
     } else {
-      setMapStyle(
-        `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`
-      );
+      setMapStyle(STREETS_V4_URL);
     }
   }, [darkMode]);
 
-  const toggleMapMode = (m: boolean) => {
+  const toggleMapMode = () => {
     setDarkMode((m) => !m);
   };
   // Polyline simulada (recorrido)
