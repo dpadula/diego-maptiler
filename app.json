@@ -29,10 +29,13 @@
     "plugins": [
       "expo-router",
       "@maplibre/maplibre-react-native",
-      "expo-location",
-      {
-        "isAndroidBackgroundLocationEnabled": false
-      },
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
       [
         "expo-splash-screen",
         {

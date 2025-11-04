@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import BottomSheet from '@gorhom/bottom-sheet';
 import {
   Camera,
   LineLayer,
@@ -10,18 +11,25 @@ import {
 import type { FeatureCollection, LineString } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
 import FloatingButtons from '../components/FloatingButtons';
+import LocationBottomSheet from '../components/LocationBottomSheet';
 import {
   DATAVIZ_DARK_URL,
   SATELLITE_URL,
   STREETS_V4_URL,
 } from '../data/constants';
+import { useUserLocation } from '../hooks/useUserLocation';
 
 export default function Index() {
   const mapRef = useRef<MapViewRef | null>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
   const [mapStyle, setMapStyle] = useState<string>(STREETS_V4_URL);
   const [zoom, setZoom] = useState(16);
   const [showRoute, setShowRoute] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
+    null
+  );
+  const { coords: userCoords, permissionGranted } = useUserLocation();
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
       prev.includes('streets') ? SATELLITE_URL : STREETS_V4_URL
@@ -29,6 +37,7 @@ export default function Index() {
   };
 
   useEffect(() => {
+    console.log('🚀 ~ Index ~ darkMode:', darkMode);
     if (darkMode) {
       setMapStyle(DATAVIZ_DARK_URL);
     } else {
@@ -37,7 +46,7 @@ export default function Index() {
   }, [darkMode]);
 
   const toggleMapMode = () => {
-    setDarkMode((m) => !m);
+    setDarkMode((mode) => !mode);
   };
   // Polyline simulada (recorrido)
   const routeGeoJSON: FeatureCollection<LineString> = {
@@ -92,6 +101,21 @@ export default function Index() {
         <MapView
           ref={mapRef}
           onLongPress={handleLongPress}
+          onPress={(event) => {
+            let coords: [number, number] | null = null;
+            if (
+              event.geometry &&
+              event.geometry.type !== 'GeometryCollection' &&
+              'coordinates' in event.geometry
+            ) {
+              coords = event.geometry.coordinates as [number, number];
+              console.log('🚀 ~ Index ~ coords:', coords);
+            }
+            if (coords) {
+              setSelectedCoords(coords);
+              bottomSheetRef.current?.expand();
+            }
+          }}
           style={styles.map}
           mapStyle={mapStyle}
           logoEnabled={false}
@@ -149,6 +173,12 @@ export default function Index() {
           }}
           onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
           onZoomOut={() => setZoom((z) => Math.max(z - 1, 3))}
+        />
+        <LocationBottomSheet
+          darkMode={darkMode}
+          onSetDarkMode={toggleMapMode}
+          ref={bottomSheetRef}
+          coordinates={selectedCoords}
         />
       </View>
     </View>

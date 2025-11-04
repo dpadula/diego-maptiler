@@ -12,7 +12,7 @@ type FloatingButtonProps = {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onToggleRoute: () => void;
-  onToggleMode: () => void;
+  onToggleMode: (m: boolean) => void;
 };
 
 const FloatingButtons = ({
@@ -40,7 +40,10 @@ const FloatingButtons = ({
       <TouchableOpacity style={styles.button} onPress={onToggleRoute}>
         <MaterialIcons name='alt-route' size={22} color='black' />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={onToggleMode}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => onToggleMode(true)}
+      >
         <Ionicons name='moon' size={22} color='black' />
       </TouchableOpacity>
     </View>
