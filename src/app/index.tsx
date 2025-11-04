@@ -8,7 +8,7 @@ import {
   ShapeSource,
 } from '@maplibre/maplibre-react-native';
 import type { FeatureCollection, LineString } from 'geojson';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import FloatingButtons from '../components/FloatingButtons';
 
 export default function Index() {
@@ -27,6 +27,22 @@ export default function Index() {
         ? `https://api.maptiler.com/maps/satellite/style.json?key=${MAPTILER_API_KEY}`
         : `https://api.maptiler.com/maps/streets-v4/style.json?key=${MAPTILER_API_KEY}`
     );
+  };
+
+  useEffect(() => {
+    if (darkMode) {
+      setMapStyle(
+        `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${MAPTILER_API_KEY}`
+      );
+    } else {
+      setMapStyle(
+        `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`
+      );
+    }
+  }, [darkMode]);
+
+  const toggleMapMode = (m: boolean) => {
+    setDarkMode((m) => !m);
   };
   // Polyline simulada (recorrido)
   const routeGeoJSON: FeatureCollection<LineString> = {
@@ -131,6 +147,7 @@ export default function Index() {
 
         <FloatingButtons
           onToggleStyle={toggleMapStyle}
+          onToggleMode={toggleMapMode}
           onToggleRoute={() => {
             setZoom(12);
             setShowRoute((r) => !r);

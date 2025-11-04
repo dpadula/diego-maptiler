@@ -1,4 +1,9 @@
-import { FontAwesome, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
+import {
+  FontAwesome,
+  FontAwesome6,
+  Ionicons,
+  MaterialIcons,
+} from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -7,6 +12,7 @@ type FloatingButtonProps = {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onToggleRoute: () => void;
+  onToggleMode: () => void;
 };
 
 const FloatingButtons = ({
@@ -14,6 +20,7 @@ const FloatingButtons = ({
   onZoomIn,
   onZoomOut,
   onToggleRoute,
+  onToggleMode,
 }: FloatingButtonProps) => {
   return (
     <View style={styles.container}>
@@ -32,6 +39,9 @@ const FloatingButtons = ({
 
       <TouchableOpacity style={styles.button} onPress={onToggleRoute}>
         <MaterialIcons name='alt-route' size={22} color='black' />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={onToggleMode}>
+        <Ionicons name='moon' size={22} color='black' />
       </TouchableOpacity>
     </View>
   );
