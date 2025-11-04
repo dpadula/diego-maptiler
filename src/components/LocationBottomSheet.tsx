@@ -1,4 +1,5 @@
 // src/components/LocationBottomSheet.tsx
+import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -11,7 +12,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type LocationBottomSheetProps = {
@@ -28,13 +29,16 @@ const LocationBottomSheet = forwardRef<BottomSheet, LocationBottomSheetProps>(
       'punto de interés',
     ]);
     const snapPoints = useMemo(() => ['50%'], []);
-    const [dark, setDark] = useState(true);
+    const [dark, setDark] = useState(false);
+    const [isEnabled, setIsEnabled] = useState(false);
     const { dismiss } = useBottomSheetModal();
     const { bottom } = useSafeAreaInsets();
 
+    const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+
     useEffect(() => {
       console.log('🚀 ~ Index ~ darkMode:', darkMode);
-      setDark(darkMode);
+      //   setDark(darkMode);
     }, [darkMode]);
 
     const renderBackdrop = useCallback(
@@ -74,13 +78,17 @@ const LocationBottomSheet = forwardRef<BottomSheet, LocationBottomSheetProps>(
 
               <View style={styles.switchContainer}>
                 <Text>Modo oscuro</Text>
-                <Switch
+                {/* <Switch
                   value={dark}
-                  onChange={() => console.log('Switch toggled')}
-                  onValueChange={onSetDarkMode}
+                  //   onChange={() => setDark(!dark)}
+                  onValueChange={() => setDark(!dark)}
                   trackColor={{ false: '#030303ff', true: '#81b0ff' }}
-                  thumbColor={darkMode ? '#f5dd4b' : '#f4f3f4'}
-                />
+                  thumbColor={dark ? '#f5dd4b' : '#f4f3f4'}
+                /> */}
+
+                <TouchableOpacity style={styles.button} onPress={onSetDarkMode}>
+                  <Ionicons name='moon' size={22} color='black' />
+                </TouchableOpacity>
               </View>
             </>
           ) : (
@@ -109,5 +117,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 15,
+  },
+  button: {
+    backgroundColor: '#fff',
+    padding: 15,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
   },
 });
