@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import BottomSheet from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
   LineLayer,
@@ -21,7 +21,7 @@ import { useUserLocation } from '../hooks/useUserLocation';
 
 export default function Index() {
   const mapRef = useRef<MapViewRef | null>(null);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [mapStyle, setMapStyle] = useState<string>(STREETS_V4_URL);
   const [zoom, setZoom] = useState(16);
   const [showRoute, setShowRoute] = useState(false);
@@ -29,15 +29,26 @@ export default function Index() {
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
     null
   );
+  const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
   const { coords: userCoords, permissionGranted } = useUserLocation();
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
       prev.includes('streets') ? SATELLITE_URL : STREETS_V4_URL
     );
   };
+  const toggleMapMode = () => {
+    setDarkMode((mode) => !mode);
+  };
 
+  const changeTripEndpoint = () => {
+    if (home[0] === -60.715926228085266) {
+      setHome([-60.688798780339226, -31.635692179155193]);
+      return;
+    } else {
+      setHome([-60.715926228085266, -31.636315286439974]);
+    }
+  };
   useEffect(() => {
-    console.log('🚀 ~ Index ~ darkMode:', darkMode);
     if (darkMode) {
       setMapStyle(DATAVIZ_DARK_URL);
     } else {
@@ -45,9 +56,6 @@ export default function Index() {
     }
   }, [darkMode]);
 
-  const toggleMapMode = () => {
-    setDarkMode((mode) => !mode);
-  };
   // Polyline simulada (recorrido)
   const routeGeoJSON: FeatureCollection<LineString> = {
     type: 'FeatureCollection',
@@ -94,6 +102,10 @@ export default function Index() {
       }
     }
   };
+  const handlePresentSuscribeModal = () => {
+    console.log('handlePresentSuscribeModal');
+    bottomSheetRef.current?.present();
+  };
 
   return (
     <View style={styles.container}>
@@ -113,7 +125,7 @@ export default function Index() {
             }
             if (coords) {
               setSelectedCoords(coords);
-              bottomSheetRef.current?.expand();
+              handlePresentSuscribeModal();
             }
           }}
           style={styles.map}
@@ -122,7 +134,7 @@ export default function Index() {
           attributionPosition={{ bottom: 8, right: 8 }}
         >
           <Camera
-            centerCoordinate={[-60.688798780339226, -31.635692179155193]}
+            centerCoordinate={home}
             zoomLevel={zoom}
             animationDuration={1500}
             animationMode='flyTo'
@@ -154,11 +166,9 @@ export default function Index() {
             borderRadius: 5,
           }}
           onPress={() => {
-            if (zoom === 16) {
-              setZoom(10);
-            } else {
-              setZoom(16);
-            }
+            setZoom(10);
+            changeTripEndpoint();
+            setZoom(16);
           }}
         >
           <Text>Cambiar Zoom</Text>
@@ -168,7 +178,8 @@ export default function Index() {
           onToggleStyle={toggleMapStyle}
           onToggleMode={toggleMapMode}
           onToggleRoute={() => {
-            setZoom(12);
+            setZoom(13);
+            setHome([-60.704594179732965, -31.640094181300455]);
             setShowRoute((r) => !r);
           }}
           onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
