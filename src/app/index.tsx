@@ -1,31 +1,76 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Camera, MapView } from '@maplibre/maplibre-react-native';
-import { useState } from 'react';
+import {
+  Camera,
+  LineLayer,
+  MapView,
+  MapViewRef,
+  ShapeSource,
+} from '@maplibre/maplibre-react-native';
+import type { FeatureCollection, LineString } from 'geojson';
+import { useRef, useState } from 'react';
 import FloatingButtons from '../components/FloatingButtons';
 
 export default function Index() {
   const MAPTILER_API_KEY = 'cVxKrO7kxSIAfQTy4QJP';
+  const mapRef = useRef<MapViewRef | null>(null);
   const [mapStyle, setMapStyle] = useState<string>(
-    'https://api.maptiler.com/maps/streets-v2/style.json?key=' +
+    'https://api.maptiler.com/maps/streets-v4/style.json?key=' +
       MAPTILER_API_KEY
   );
   const [zoom, setZoom] = useState(16);
-  // mapStyle={`https://api.maptiler.com/maps/streets-v4/style.json?key=${MAPTILER_API_KEY}`}
-  // mapStyle={`https://api.maptiler.com/maps/satellite/style.json?key=${MAPTILER_API_KEY}`}
+  const [showRoute, setShowRoute] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
       prev.includes('streets')
         ? `https://api.maptiler.com/maps/satellite/style.json?key=${MAPTILER_API_KEY}`
-        : `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_API_KEY}`
+        : `https://api.maptiler.com/maps/streets-v4/style.json?key=${MAPTILER_API_KEY}`
     );
   };
+  // Polyline simulada (recorrido)
+  const routeGeoJSON: FeatureCollection<LineString> = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [-60.6888, -31.6356],
+            [-60.7, -31.64],
+            [-60.71, -31.65],
+          ],
+        },
+        properties: {},
+      },
+    ],
+  };
+
+  const handleLongPress = async (feature: any) => {
+    console.log('Evento de LongPress en:', feature.geometry.coordinates);
+
+    // 2. Usar la referencia para obtener el zoom
+    if (mapRef.current) {
+      try {
+        // MapLibreGL.MapView.getZoom() es un método asíncrono
+        const zoomLevel = await mapRef.current.getZoom();
+
+        console.log('✅ Nivel de Zoom Actual:', zoomLevel);
+        // Puedes guardarlo en el estado si necesitas usarlo en el UI
+        setZoom(zoomLevel);
+      } catch (error) {
+        console.error('Error al obtener el nivel de zoom:', error);
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.mapcontainer}>
         <MapView
-          // onPress={(feature) => console.log('pressed', feature)}
-          onLongPress={(feature) => console.log('pressed', feature)}
+          ref={mapRef}
+          onLongPress={handleLongPress}
           style={styles.map}
           mapStyle={mapStyle}
           logoEnabled={false}
@@ -37,6 +82,20 @@ export default function Index() {
             animationDuration={1500}
             animationMode='flyTo'
           />
+          {/* Polyline simulada */}
+          {showRoute && (
+            <ShapeSource id='route' shape={routeGeoJSON}>
+              <LineLayer
+                id='lineLayer'
+                style={{
+                  lineColor: '#007AFF',
+                  lineWidth: 4,
+                  lineJoin: 'round',
+                  lineCap: 'round',
+                }}
+              />
+            </ShapeSource>
+          )}
         </MapView>
 
         <Pressable
@@ -62,6 +121,7 @@ export default function Index() {
 
         <FloatingButtons
           onToggleStyle={toggleMapStyle}
+          onToggleRoute={() => setShowRoute((r) => !r)}
           onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
           onZoomOut={() => setZoom((z) => Math.max(z - 1, 3))}
         />
