@@ -70,7 +70,10 @@ const LocationBottomSheet = forwardRef<
         </View>
         {coordinates ? (
           <>
-            <Text style={styles.title}>📍 Ubicación seleccionada</Text>
+            <Text style={styles.title}>
+              <Ionicons name='location' size={22} color='red' /> Ubicación
+              seleccionada
+            </Text>
             <Text style={styles.coord}>Lng: {coordinates[0].toFixed(5)}</Text>
             <Text style={styles.coord}>Lat: {coordinates[1].toFixed(5)}</Text>
 

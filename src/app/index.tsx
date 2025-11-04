@@ -142,7 +142,7 @@ export default function Index() {
             animationDuration={1500}
             animationMode='flyTo'
           />
-          {/* Polyline simulada */}
+          {/* Paseo en auto */}
           {showRoute && (
             <ShapeSource id='route' shape={routeGeoJSON}>
               <LineLayer
@@ -159,15 +159,7 @@ export default function Index() {
         </MapView>
 
         <TouchableOpacity
-          style={{
-            position: 'absolute',
-            top: 150,
-            zIndex: 1000,
-            backgroundColor: 'white',
-            padding: 20,
-            marginHorizontal: 10,
-            borderRadius: 5,
-          }}
+          style={styles.button}
           onPress={() => {
             setZoom(10);
             changeTripEndpoint();
@@ -180,25 +172,6 @@ export default function Index() {
             <Ionicons name='flag' size={22} color='black' />
           )}
         </TouchableOpacity>
-
-        {/* <Pressable
-          style={{
-            position: 'absolute',
-            top: 150,
-            zIndex: 1000,
-            backgroundColor: 'white',
-            padding: 20,
-            marginHorizontal: 10,
-            borderRadius: 5,
-          }}
-          onPress={() => {
-            setZoom(10);
-            changeTripEndpoint();
-            setZoom(16);
-          }}
-        >
-          <Text>Cambiar Zoom</Text>
-        </Pressable> */}
 
         <FloatingButtons
           onToggleStyle={toggleMapStyle}
@@ -235,5 +208,17 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  button: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    backgroundColor: '#fff',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
   },
 });
