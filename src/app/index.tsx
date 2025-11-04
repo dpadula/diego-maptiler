@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
@@ -30,6 +31,7 @@ export default function Index() {
     null
   );
   const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
+  const [trip, setTrip] = useState(true);
   const { coords: userCoords, permissionGranted } = useUserLocation();
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
@@ -41,13 +43,14 @@ export default function Index() {
   };
 
   const changeTripEndpoint = () => {
-    if (home[0] === -60.715926228085266) {
+    if (trip) {
       setHome([-60.688798780339226, -31.635692179155193]);
-      return;
     } else {
       setHome([-60.715926228085266, -31.636315286439974]);
     }
+    setTrip(!trip);
   };
+
   useEffect(() => {
     if (darkMode) {
       setMapStyle(DATAVIZ_DARK_URL);
@@ -155,7 +158,30 @@ export default function Index() {
           )}
         </MapView>
 
-        <Pressable
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 150,
+            zIndex: 1000,
+            backgroundColor: 'white',
+            padding: 20,
+            marginHorizontal: 10,
+            borderRadius: 5,
+          }}
+          onPress={() => {
+            setZoom(10);
+            changeTripEndpoint();
+            setZoom(16);
+          }}
+        >
+          {trip ? (
+            <Ionicons name='home' size={22} color='black' />
+          ) : (
+            <Ionicons name='flag' size={22} color='black' />
+          )}
+        </TouchableOpacity>
+
+        {/* <Pressable
           style={{
             position: 'absolute',
             top: 150,
@@ -172,7 +198,7 @@ export default function Index() {
           }}
         >
           <Text>Cambiar Zoom</Text>
-        </Pressable>
+        </Pressable> */}
 
         <FloatingButtons
           onToggleStyle={toggleMapStyle}
