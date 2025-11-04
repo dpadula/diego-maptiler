@@ -121,7 +121,10 @@ export default function Index() {
 
         <FloatingButtons
           onToggleStyle={toggleMapStyle}
-          onToggleRoute={() => setShowRoute((r) => !r)}
+          onToggleRoute={() => {
+            setZoom(12);
+            setShowRoute((r) => !r);
+          }}
           onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
           onZoomOut={() => setZoom((z) => Math.max(z - 1, 3))}
         />
