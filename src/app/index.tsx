@@ -102,30 +102,39 @@ export default function Index() {
     ],
   };
 
-  const navigateRoute = () => {
+  // const navigateRoute = () => {
+  //   setShowRoute(true);
+  //   if (cameraRef.current) {
+  //     tripCoordinates.forEach((coord, index) => {
+  //       setTimeout(() => {
+  //         cameraRef.current?.moveTo(coord, 2500);
+  //         setMarkerCoord(coord as [number, number]);
+  //         if (index === tripCoordinates.length - 1) {
+  //           setTimeout(() => {
+  //             setTripActive(false);
+  //           }, 2000);
+  //         }
+  //       }, index * 1500);
+  //     });
+  //   }
+  // };
+
+  const navigateRoute = async () => {
     setShowRoute(true);
     setPitch(85);
-    setTripCoordinates(routeGeoJSON.features[0].geometry.coordinates);
-    if (cameraRef.current) {
-      tripCoordinates.forEach((coord, index) => {
-        setTimeout(() => {
-          cameraRef.current?.moveTo(coord, 2500);
-          setMarkerCoord(coord as [number, number]);
+    const coordinates = routeGeoJSON.features[0].geometry.coordinates;
 
-          // 🟢 Condición de corte
-          if (index === tripCoordinates.length - 1) {
-            // Esperás un poquito más para asegurar que el último movimiento se complete
-            setTimeout(() => {
-              setPitch(0); // volver a vista normal
-              setTripActive(false);
-              console.log('✅ Viaje completado');
-              // Podrías disparar un evento, callback o estado como:
-              // setTripFinished(true);
-            }, 2000);
-          }
-        }, index * 1500);
-      });
+    for (let i = 0; i < coordinates.length; i++) {
+      const coord = coordinates[i];
+      cameraRef.current?.moveTo(coord, 2500);
+      setMarkerCoord(coord as [number, number]);
+      await new Promise((res) => setTimeout(res, 1500));
     }
+
+    // 🎯 Fin del viaje
+    setPitch(0);
+    setTripActive(false);
+    console.log('✅ Viaje completado');
   };
 
   const handleLongPress = async (feature: any) => {
