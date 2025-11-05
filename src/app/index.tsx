@@ -1,12 +1,18 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import {
+  FontAwesome6,
+  Ionicons,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
+  CameraRef,
   LineLayer,
   MapView,
   MapViewRef,
+  PointAnnotation,
   ShapeSource,
 } from '@maplibre/maplibre-react-native';
 import type { FeatureCollection, LineString } from 'geojson';
@@ -22,6 +28,7 @@ import { useUserLocation } from '../hooks/useUserLocation';
 
 export default function Index() {
   const mapRef = useRef<MapViewRef | null>(null);
+  const cameraRef = useRef<CameraRef>(null);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [mapStyle, setMapStyle] = useState<string>(STREETS_V4_URL);
   const [zoom, setZoom] = useState(16);
@@ -31,6 +38,9 @@ export default function Index() {
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
     null
   );
+  const [markerCoord, setMarkerCoord] = useState<[number, number]>([
+    -60.688798780339226, -31.635692179155193,
+  ]);
   const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
   const [trip, setTrip] = useState(true);
   const { coords: userCoords, permissionGranted } = useUserLocation();
@@ -89,6 +99,19 @@ export default function Index() {
     ],
   };
 
+  const navigateRoute = () => {
+    setShowRoute(true);
+    const coordinates = routeGeoJSON.features[0].geometry.coordinates;
+    if (cameraRef.current) {
+      coordinates.forEach((coord, index) =>
+        setTimeout(() => {
+          cameraRef.current?.moveTo(coord, 2500);
+          setMarkerCoord(coord as [number, number]);
+        }, index * 1500)
+      );
+    }
+  };
+
   const handleLongPress = async (feature: any) => {
     console.log('Evento de LongPress en:', feature.geometry.coordinates);
 
@@ -107,7 +130,6 @@ export default function Index() {
     }
   };
   const handlePresentSuscribeModal = () => {
-    console.log('handlePresentSuscribeModal');
     bottomSheetRef.current?.present();
   };
 
@@ -142,11 +164,12 @@ export default function Index() {
           attributionPosition={{ bottom: 8, right: 8 }}
         >
           <Camera
+            ref={cameraRef}
             pitch={pitch}
             centerCoordinate={home}
             zoomLevel={zoom}
             animationDuration={1500}
-            animationMode='flyTo'
+            animationMode='easeTo'
           />
           {/* Paseo en auto */}
           {showRoute && (
@@ -162,10 +185,14 @@ export default function Index() {
               />
             </ShapeSource>
           )}
+
+          <PointAnnotation id='marker' coordinate={markerCoord}>
+            <FontAwesome6 name='location-dot' size={32} color='red' />
+          </PointAnnotation>
         </MapView>
 
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, styles.buttonFly]}
           onPress={() => {
             setZoom(10);
             changeTripEndpoint();
@@ -176,6 +203,23 @@ export default function Index() {
             <Ionicons name='home' size={22} color='black' />
           ) : (
             <Ionicons name='flag' size={22} color='black' />
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.buttonTravel]}
+          onPress={() => {
+            navigateRoute();
+          }}
+        >
+          {/* ver como coordinar cuando empieza y termina el paseo */}
+          {trip ? (
+            <FontAwesome6 name='car-side' size={24} color='black' />
+          ) : (
+            <MaterialCommunityIcons
+              name='map-marker-path'
+              size={24}
+              color='black'
+            />
           )}
         </TouchableOpacity>
 
@@ -221,8 +265,6 @@ const styles = StyleSheet.create({
   },
   button: {
     position: 'absolute',
-    top: 50,
-    left: 20,
     backgroundColor: '#fff',
     width: 50,
     height: 50,
@@ -230,5 +272,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
+  },
+  buttonFly: {
+    top: 50,
+    left: 20,
+  },
+  buttonTravel: {
+    top: 120,
+    left: 20,
   },
 });
