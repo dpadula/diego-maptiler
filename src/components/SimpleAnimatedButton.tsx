@@ -1,14 +1,10 @@
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, TouchableOpacity } from 'react-native';
+import { BLUE, GREEN, LIGHT_YELLOW, RED, YELLOW } from '../data/Colors';
 
 // Colores para la animación
-const ANIMATION_COLORS = [
-  'rgb(255, 99, 71)',
-  'rgb(60, 179, 113)',
-  'rgb(65, 105, 225)',
-  'rgb(255, 215, 0)',
-];
+const ANIMATION_COLORS = [RED, GREEN, BLUE, YELLOW];
 const DURATION = 4000; // Duración de un ciclo completo (4 segundos)
 
 // Props
@@ -80,11 +76,7 @@ const SimpleAnimatedButton = ({
       <TouchableOpacity
         disabled={tripActive}
         // Aplica estilos base y el estilo de fondo si está activo
-        style={[
-          styles.button,
-          styles.buttonTravel,
-          tripActive && styles.backgroundActionButton,
-        ]}
+        style={[styles.button, tripActive && styles.backgroundActionButton]}
         onPress={() => {
           setTripActive(true);
           navigateRoute();
@@ -122,11 +114,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f0f0f0', // Color base del botón
   },
-  buttonTravel: {
-    // Estilos de posición o sombra que ya tenías
-  },
   backgroundActionButton: {
-    backgroundColor: 'yellow', // El color que quieres cuando está activo
+    backgroundColor: LIGHT_YELLOW,
   },
 });
 

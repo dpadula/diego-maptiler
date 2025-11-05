@@ -249,7 +249,11 @@ export default function Index() {
           tripActive={tripActive}
           navigateRoute={navigateRoute}
           setTripActive={setTripActive}
-          style={[styles.button, styles.buttonTravel]}
+          style={[
+            styles.button,
+            styles.buttonTravel,
+            tripActive && styles.backgroundActionButton,
+          ]}
         ></SimpleAnimatedButton>
         <FloatingMenu
           onToggleStyle={toggleMapStyle}
