@@ -21,7 +21,7 @@ type FloatingMenuProps = {
   onZoomOut: () => void;
   onToggleRoute: () => void;
   onToggleMode: () => void;
-  onTogglePitch?: () => void;
+  onTogglePitch: () => void;
   mapStyle?: string;
   pitch?: number;
   darkMode?: boolean;

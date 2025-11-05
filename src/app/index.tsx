@@ -20,6 +20,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FloatingMenu from '../components/FloatingMenu';
 import LocationBottomSheet from '../components/LocationBottomSheet';
+import { LIGHT_YELLOW } from '../data/Colors';
 import {
   DATAVIZ_DARK_URL,
   SATELLITE_URL,
@@ -102,21 +103,35 @@ export default function Index() {
     ],
   };
 
+  const centerCameraOnMiddleTrip = () => {
+    const coords = routeGeoJSON.features[0].geometry.coordinates;
+    cameraRef.current?.fitBounds(
+      coords[0],
+      coords[coords.length - 1],
+      50,
+      1000
+    );
+  };
+
   const navigateRoute = async () => {
     setShowRoute(true);
     setPitch(85);
-    const coordinates = routeGeoJSON.features[0].geometry.coordinates;
+    // const coordinates = routeGeoJSON.features[0].geometry.coordinates;
+    setTripCoordinates(routeGeoJSON.features[0].geometry.coordinates);
 
-    for (let i = 0; i < coordinates.length; i++) {
-      const coord = coordinates[i];
-      cameraRef.current?.moveTo(coord, 2500);
+    for (let i = 0; i < tripCoordinates.length; i++) {
+      const coord = tripCoordinates[i];
+      cameraRef.current?.flyTo(coord, 2500);
       setMarkerCoord(coord as [number, number]);
       await new Promise((res) => setTimeout(res, 1500));
     }
 
     setPitch(0);
     setTripActive(false);
-    setHome(coordinates[coordinates.length - 1] as [number, number]);
+    setTripCoordinates(routeGeoJSON.features[0].geometry.coordinates.reverse());
+    setHome(tripCoordinates[0] as [number, number]);
+    await new Promise((res) => setTimeout(res, 1500));
+    centerCameraOnMiddleTrip();
   };
 
   const handleLongPress = async (feature: any) => {
@@ -176,7 +191,7 @@ export default function Index() {
             centerCoordinate={home}
             zoomLevel={zoom}
             animationDuration={2500}
-            animationMode='flyTo'
+            animationMode='easeTo'
           />
           {/* Paseo en auto */}
           {showRoute && (
@@ -213,9 +228,14 @@ export default function Index() {
           )}
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, styles.buttonTravel]}
+          disabled={tripActive}
+          style={[
+            styles.button,
+            styles.buttonTravel,
+            tripActive && styles.backgroundActionButton,
+          ]}
           onPress={() => {
-            setTripActive(!tripActive);
+            setTripActive(true);
             navigateRoute();
           }}
         >
@@ -239,8 +259,7 @@ export default function Index() {
           darkMode={darkMode}
           mapStyle={mapStyle}
           onToggleRoute={() => {
-            setZoom(13);
-            setHome([-60.704594179732965, -31.640094181300455]);
+            centerCameraOnMiddleTrip();
             setShowRoute((r) => !r);
           }}
           onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
@@ -288,5 +307,8 @@ const styles = StyleSheet.create({
   buttonTravel: {
     top: 120,
     left: 20,
+  },
+  backgroundActionButton: {
+    backgroundColor: LIGHT_YELLOW,
   },
 });
