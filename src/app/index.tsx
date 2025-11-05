@@ -102,23 +102,6 @@ export default function Index() {
     ],
   };
 
-  // const navigateRoute = () => {
-  //   setShowRoute(true);
-  //   if (cameraRef.current) {
-  //     tripCoordinates.forEach((coord, index) => {
-  //       setTimeout(() => {
-  //         cameraRef.current?.moveTo(coord, 2500);
-  //         setMarkerCoord(coord as [number, number]);
-  //         if (index === tripCoordinates.length - 1) {
-  //           setTimeout(() => {
-  //             setTripActive(false);
-  //           }, 2000);
-  //         }
-  //       }, index * 1500);
-  //     });
-  //   }
-  // };
-
   const navigateRoute = async () => {
     setShowRoute(true);
     setPitch(85);
@@ -131,10 +114,9 @@ export default function Index() {
       await new Promise((res) => setTimeout(res, 1500));
     }
 
-    // 🎯 Fin del viaje
     setPitch(0);
     setTripActive(false);
-    console.log('✅ Viaje completado');
+    setHome(coordinates[coordinates.length - 1] as [number, number]);
   };
 
   const handleLongPress = async (feature: any) => {
