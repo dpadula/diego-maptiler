@@ -11,7 +11,7 @@ import {
 } from '@maplibre/maplibre-react-native';
 import type { FeatureCollection, LineString } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
-import FloatingButtons from '../components/FloatingButtons';
+import FloatingMenu from '../components/FloatingMenu';
 import LocationBottomSheet from '../components/LocationBottomSheet';
 import {
   DATAVIZ_DARK_URL,
@@ -173,7 +173,18 @@ export default function Index() {
           )}
         </TouchableOpacity>
 
-        <FloatingButtons
+        {/* <FloatingButtons
+          onToggleStyle={toggleMapStyle}
+          onToggleMode={toggleMapMode}
+          onToggleRoute={() => {
+            setZoom(13);
+            setHome([-60.704594179732965, -31.640094181300455]);
+            setShowRoute((r) => !r);
+          }}
+          onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
+          onZoomOut={() => setZoom((z) => Math.max(z - 1, 3))}
+        /> */}
+        <FloatingMenu
           onToggleStyle={toggleMapStyle}
           onToggleMode={toggleMapMode}
           onToggleRoute={() => {

@@ -15,7 +15,7 @@ import React, {
 } from 'react';
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '../data/Colors';
+import { BLUE, Colors, YELLOW } from '../data/Colors';
 
 type LocationBottomSheetProps = {
   coordinates: [number, number] | null;
@@ -91,8 +91,8 @@ const LocationBottomSheet = forwardRef<
                 value={darkMode}
                 //   onChange={() => setDark(!dark)}
                 onValueChange={onSetDarkMode}
-                trackColor={{ false: '#030303ff', true: '#81b0ff' }}
-                thumbColor={darkMode ? '#f5dd4b' : '#f4f3f4'}
+                trackColor={{ false: Colors.dark.background, true: BLUE }}
+                thumbColor={darkMode ? YELLOW : Colors.light.background}
               />
             </View>
           </>
