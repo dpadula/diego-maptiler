@@ -25,6 +25,7 @@ export default function Index() {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [mapStyle, setMapStyle] = useState<string>(STREETS_V4_URL);
   const [zoom, setZoom] = useState(16);
+  const [pitch, setPitch] = useState(0);
   const [showRoute, setShowRoute] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
@@ -110,6 +111,10 @@ export default function Index() {
     bottomSheetRef.current?.present();
   };
 
+  const togglePitch = () => {
+    setPitch((prev) => (prev === 0 ? 85 : 0));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.mapcontainer}>
@@ -137,6 +142,7 @@ export default function Index() {
           attributionPosition={{ bottom: 8, right: 8 }}
         >
           <Camera
+            pitch={pitch}
             centerCoordinate={home}
             zoomLevel={zoom}
             animationDuration={1500}
@@ -173,20 +179,13 @@ export default function Index() {
           )}
         </TouchableOpacity>
 
-        {/* <FloatingButtons
-          onToggleStyle={toggleMapStyle}
-          onToggleMode={toggleMapMode}
-          onToggleRoute={() => {
-            setZoom(13);
-            setHome([-60.704594179732965, -31.640094181300455]);
-            setShowRoute((r) => !r);
-          }}
-          onZoomIn={() => setZoom((z) => Math.min(z + 1, 20))}
-          onZoomOut={() => setZoom((z) => Math.max(z - 1, 3))}
-        /> */}
         <FloatingMenu
           onToggleStyle={toggleMapStyle}
           onToggleMode={toggleMapMode}
+          onTogglePitch={togglePitch}
+          pitch={pitch}
+          darkMode={darkMode}
+          mapStyle={mapStyle}
           onToggleRoute={() => {
             setZoom(13);
             setHome([-60.704594179732965, -31.640094181300455]);

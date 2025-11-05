@@ -21,6 +21,10 @@ type FloatingMenuProps = {
   onZoomOut: () => void;
   onToggleRoute: () => void;
   onToggleMode: () => void;
+  onTogglePitch?: () => void;
+  mapStyle?: string;
+  pitch?: number;
+  darkMode?: boolean;
 };
 
 const FloatingMenu = ({
@@ -29,6 +33,10 @@ const FloatingMenu = ({
   onZoomOut,
   onToggleRoute,
   onToggleMode,
+  onTogglePitch,
+  mapStyle,
+  pitch,
+  darkMode,
 }: FloatingMenuProps) => {
   const [open, setOpen] = useState(false);
   const animation = useSharedValue(0);
@@ -64,7 +72,12 @@ const FloatingMenu = ({
 
   const buttons = [
     {
-      icon: <FontAwesome name='map' size={22} color='black' />,
+      icon: mapStyle!.includes('streets') ? (
+        // <FontAwesome name='map' size={22} color='black' />
+        <MaterialIcons name='terrain' size={24} color='black' />
+      ) : (
+        <FontAwesome name='map-o' size={22} color='black' />
+      ),
       onPress: onToggleStyle,
     },
     {
@@ -80,8 +93,20 @@ const FloatingMenu = ({
       onPress: onToggleRoute,
     },
     {
-      icon: <Ionicons name='moon' size={22} color='black' />,
+      icon: darkMode ? (
+        <Ionicons name='sunny' size={22} color='black' />
+      ) : (
+        <Ionicons name='moon' size={22} color='black' />
+      ),
       onPress: onToggleMode,
+    },
+    {
+      icon: pitch ? (
+        <Ionicons name='compass-outline' size={28} color='black' />
+      ) : (
+        <Ionicons name='compass' size={28} color='black' />
+      ),
+      onPress: onTogglePitch,
     },
   ];
 
