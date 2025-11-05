@@ -15,8 +15,9 @@ import {
   PointAnnotation,
   ShapeSource,
 } from '@maplibre/maplibre-react-native';
-import type { FeatureCollection, LineString } from 'geojson';
+import type { FeatureCollection, LineString, Position } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FloatingMenu from '../components/FloatingMenu';
 import LocationBottomSheet from '../components/LocationBottomSheet';
 import {
@@ -38,11 +39,13 @@ export default function Index() {
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
     null
   );
-  const [markerCoord, setMarkerCoord] = useState<[number, number]>([
+  const [markerCoord, setMarkerCoord] = useState<[number, number] | null>([
     -60.688798780339226, -31.635692179155193,
   ]);
+  const [tripCoordinates, setTripCoordinates] = useState<Position[]>([]);
   const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
   const [trip, setTrip] = useState(true);
+  const [tripActive, setTripActive] = useState(false);
   const { coords: userCoords, permissionGranted } = useUserLocation();
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
@@ -101,14 +104,27 @@ export default function Index() {
 
   const navigateRoute = () => {
     setShowRoute(true);
-    const coordinates = routeGeoJSON.features[0].geometry.coordinates;
+    setPitch(85);
+    setTripCoordinates(routeGeoJSON.features[0].geometry.coordinates);
     if (cameraRef.current) {
-      coordinates.forEach((coord, index) =>
+      tripCoordinates.forEach((coord, index) => {
         setTimeout(() => {
           cameraRef.current?.moveTo(coord, 2500);
           setMarkerCoord(coord as [number, number]);
-        }, index * 1500)
-      );
+
+          // 🟢 Condición de corte
+          if (index === tripCoordinates.length - 1) {
+            // Esperás un poquito más para asegurar que el último movimiento se complete
+            setTimeout(() => {
+              setPitch(0); // volver a vista normal
+              setTripActive(false);
+              console.log('✅ Viaje completado');
+              // Podrías disparar un evento, callback o estado como:
+              // setTripFinished(true);
+            }, 2000);
+          }
+        }, index * 1500);
+      });
     }
   };
 
@@ -138,7 +154,7 @@ export default function Index() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.mapcontainer}>
         <MapView
           ref={mapRef}
@@ -168,8 +184,8 @@ export default function Index() {
             pitch={pitch}
             centerCoordinate={home}
             zoomLevel={zoom}
-            animationDuration={1500}
-            animationMode='easeTo'
+            animationDuration={2500}
+            animationMode='flyTo'
           />
           {/* Paseo en auto */}
           {showRoute && (
@@ -186,8 +202,8 @@ export default function Index() {
             </ShapeSource>
           )}
 
-          <PointAnnotation id='marker' coordinate={markerCoord}>
-            <FontAwesome6 name='location-dot' size={32} color='red' />
+          <PointAnnotation id='marker' coordinate={markerCoord!}>
+            <FontAwesome6 name='car' size={32} color='red' />
           </PointAnnotation>
         </MapView>
 
@@ -208,11 +224,12 @@ export default function Index() {
         <TouchableOpacity
           style={[styles.button, styles.buttonTravel]}
           onPress={() => {
+            setTripActive(!tripActive);
             navigateRoute();
           }}
         >
           {/* ver como coordinar cuando empieza y termina el paseo */}
-          {trip ? (
+          {!tripActive ? (
             <FontAwesome6 name='car-side' size={24} color='black' />
           ) : (
             <MaterialCommunityIcons
@@ -245,7 +262,7 @@ export default function Index() {
           coordinates={selectedCoords}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

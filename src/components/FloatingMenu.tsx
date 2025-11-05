@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     right: 20,
-    bottom: 100,
+    bottom: 20,
     alignItems: 'center',
   },
   buttonContainer: {
