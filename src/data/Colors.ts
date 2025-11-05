@@ -1,4 +1,5 @@
 export const GREEN = '#60AB55';
+export const RED = '#b45e4f';
 export const YELLOW = '#BCAD4C';
 export const LIGHT_YELLOW = '#f0da4b';
 export const BLUE = '#4c9cbcff';

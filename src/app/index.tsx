@@ -1,10 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import {
-  FontAwesome6,
-  Ionicons,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
+import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
@@ -20,6 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FloatingMenu from '../components/FloatingMenu';
 import LocationBottomSheet from '../components/LocationBottomSheet';
+import SimpleAnimatedButton from '../components/SimpleAnimatedButton';
 import { LIGHT_YELLOW } from '../data/Colors';
 import {
   DATAVIZ_DARK_URL,
@@ -212,7 +209,6 @@ export default function Index() {
             <FontAwesome6 name='car' size={32} color='red' />
           </PointAnnotation>
         </MapView>
-
         <TouchableOpacity
           style={[styles.button, styles.buttonFly]}
           onPress={() => {
@@ -227,7 +223,7 @@ export default function Index() {
             <Ionicons name='flag' size={22} color='black' />
           )}
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           disabled={tripActive}
           style={[
             styles.button,
@@ -239,7 +235,6 @@ export default function Index() {
             navigateRoute();
           }}
         >
-          {/* ver como coordinar cuando empieza y termina el paseo */}
           {!tripActive ? (
             <FontAwesome6 name='car-side' size={24} color='black' />
           ) : (
@@ -249,8 +244,13 @@ export default function Index() {
               color='black'
             />
           )}
-        </TouchableOpacity>
-
+        </TouchableOpacity> */}
+        <SimpleAnimatedButton
+          tripActive={tripActive}
+          navigateRoute={navigateRoute}
+          setTripActive={setTripActive}
+          style={[styles.button, styles.buttonTravel]}
+        ></SimpleAnimatedButton>
         <FloatingMenu
           onToggleStyle={toggleMapStyle}
           onToggleMode={toggleMapMode}
