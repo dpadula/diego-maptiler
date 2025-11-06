@@ -1,5 +1,3 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
@@ -12,8 +10,10 @@ import {
   MarkerView,
   ShapeSource,
 } from '@maplibre/maplibre-react-native';
+import { distance } from '@turf/turf';
 import type { FeatureCollection, LineString, Position } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FloatingMenu from '../components/FloatingMenu';
 import LocationBottomSheet from '../components/LocationBottomSheet';
@@ -169,10 +169,12 @@ export default function Index() {
   };
 
   const rideTrip = async (coords: Position[]) => {
-    const stepsPerSegment = 20; // más = más suave
+    // const stepsPerSegment = 20; // más = más suave
     const stepDuration = 200; // ms
 
     for (let i = 0; i < coords.length - 1; i++) {
+      const dist = distance(coords[i], coords[i + 1]); // km
+      const stepsPerSegment = Math.max(10, Math.min(50, dist * 100)); // dinámico
       const segment = interpolateCoords(
         coords[i],
         coords[i + 1],
