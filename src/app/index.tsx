@@ -123,11 +123,14 @@ export default function Index() {
       requestAnimationFrame(() => resolve());
     });
 
-  const tooglePitchAsync = () =>
-    new Promise<void>((resolve) => {
-      togglePitch();
-      requestAnimationFrame(() => resolve());
-    });
+  const tooglePitchAsync = async () => {
+    togglePitch();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // new Promise<void>((resolve) => {
+    //   togglePitch();
+    //   requestAnimationFrame(() => resolve());
+    // });
+  };
 
   const beginTrip = async () => {
     await tooglePitchAsync();
@@ -141,11 +144,11 @@ export default function Index() {
   };
 
   const endTrip = async (coords: Position[]) => {
-    await tooglePitchAsync();
-    setTripActive(false);
     const reversed = [...coords].reverse();
     await setTripCoordinatesAsync(reversed);
     setHome(reversed[0]);
+    setTripActive(false);
+    await tooglePitchAsync();
   };
 
   const rideTrip = async (coords: Position[]) => {
