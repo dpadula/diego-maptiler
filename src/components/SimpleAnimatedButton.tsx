@@ -76,7 +76,7 @@ const SimpleAnimatedButton = ({
       <TouchableOpacity
         disabled={tripActive}
         // Aplica estilos base y el estilo de fondo si está activo
-        style={[styles.button, tripActive && styles.backgroundActionButton]}
+        style={[tripActive && styles.backgroundActionButton]}
         onPress={() => {
           setTripActive(true);
           navigateRoute();
@@ -100,19 +100,7 @@ const SimpleAnimatedButton = ({
 // --- Estilos de ejemplo ---
 const styles = StyleSheet.create({
   animatedWrapper: {
-    // Espacio para que el Animated.View se vea como el borde
-    padding: 4, // Debe ser al menos igual al borderWidth animado
-    borderRadius: 50,
-    // Asegura que el contenedor tenga un tamaño base si es necesario
-  },
-  button: {
-    // Estilos del TouchableOpacity interior
-    // height: 60, // Ajusta a tu tamaño deseado
-    // width: 60, // Ajusta a tu tamaño deseado
-    borderRadius: 30, // La mitad de height/width para hacerlo circular
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0', // Color base del botón
+    shadowColor: 'transparent',
   },
   backgroundActionButton: {
     backgroundColor: LIGHT_YELLOW,

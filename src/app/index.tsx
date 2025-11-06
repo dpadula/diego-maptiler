@@ -208,7 +208,7 @@ export default function Index() {
           <MarkerView id='marker' coordinate={markerCoord!}>
             <View style={styles.touchableContainer}>
               <TouchableOpacity style={styles.touchable}>
-                <FontAwesome6 name='car' size={32} color='red' />
+                <FontAwesome6 name='car' size={26} color='red' />
               </TouchableOpacity>
             </View>
           </MarkerView>
@@ -326,9 +326,9 @@ const styles = StyleSheet.create({
   },
   touchable: {
     backgroundColor: 'blue',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
   },
