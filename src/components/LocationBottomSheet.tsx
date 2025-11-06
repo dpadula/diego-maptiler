@@ -6,13 +6,7 @@ import {
   BottomSheetView,
   useBottomSheetModal,
 } from '@gorhom/bottom-sheet';
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BLUE, Colors, YELLOW } from '../data/Colors';
@@ -35,11 +29,6 @@ const LocationBottomSheet = forwardRef<
   const snapPoints = useMemo(() => ['50%'], []);
   const { dismiss } = useBottomSheetModal();
   const { bottom } = useSafeAreaInsets();
-
-  useEffect(() => {
-    console.log('🚀 ~ Index ~ darkMode:', darkMode);
-    //   setDark(darkMode);
-  }, [darkMode]);
 
   const renderBackdrop = useCallback(
     (props: any) => (

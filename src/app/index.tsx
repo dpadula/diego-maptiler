@@ -45,6 +45,8 @@ export default function Index() {
   const [tripActive, setTripActive] = useState(false);
   const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
   const { coords: userCoords, permissionGranted } = useUserLocation(); // Para solicitar permisos de ubicacion
+
+  // Configuraciones de MapLibre para ignorar logs no deseados
   Logger.setLogCallback((log) => {
     const { message } = log;
 
@@ -75,18 +77,6 @@ export default function Index() {
       setMapStyle(STREETS_V4_URL);
     }
   }, [darkMode]);
-
-  // useEffect(() => {
-  //   const runRideTrip = async () => {
-  //     if (tripCoordinates.length > 0 && tripActive) {
-  //       console.log('🟢 tripCoordinates actualizado:', tripCoordinates.length);
-  //       await rideTrip(); // tu función async
-  //       endTrip();
-  //       console.log('✅ Viaje terminado');
-  //     }
-  //   };
-  //   runRideTrip();
-  // }, [tripCoordinates]);
 
   // Polyline simulada (recorrido)
   const routeGeoJSON: FeatureCollection<LineString> = {
@@ -133,8 +123,14 @@ export default function Index() {
       requestAnimationFrame(() => resolve());
     });
 
+  const tooglePitchAsync = () =>
+    new Promise<void>((resolve) => {
+      togglePitch();
+      requestAnimationFrame(() => resolve());
+    });
+
   const beginTrip = async () => {
-    togglePitch();
+    await tooglePitchAsync();
     const coords = tripCoordinates.length
       ? tripCoordinates
       : routeGeoJSON.features[0].geometry.coordinates;
@@ -145,7 +141,7 @@ export default function Index() {
   };
 
   const endTrip = async (coords: Position[]) => {
-    togglePitch();
+    await tooglePitchAsync();
     setTripActive(false);
     const reversed = [...coords].reverse();
     await setTripCoordinatesAsync(reversed);
