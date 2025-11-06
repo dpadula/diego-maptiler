@@ -1,11 +1,12 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import { FontAwesome6, Ionicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
   CameraRef,
   LineLayer,
+  Logger,
   MapView,
   MapViewRef,
   MarkerView,
@@ -41,10 +42,23 @@ export default function Index() {
     -60.688798780339226, -31.635692179155193,
   ]);
   const [tripCoordinates, setTripCoordinates] = useState<Position[]>([]);
-  const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
-  const [trip, setTrip] = useState(true);
   const [tripActive, setTripActive] = useState(false);
-  const { coords: userCoords, permissionGranted } = useUserLocation();
+  const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
+  const { coords: userCoords, permissionGranted } = useUserLocation(); // Para solicitar permisos de ubicacion
+  Logger.setLogCallback((log) => {
+    const { message } = log;
+
+    // expected warnings - see https://github.com/mapbox/mapbox-gl-native/issues/15341#issuecomment-522889062
+    if (
+      message.match('Request failed due to a permanent error: Canceled') ||
+      message.match('Request failed due to a permanent error: Socket Closed') ||
+      message.match("layer doesn't support this property") ||
+      message.match('source must have tiles')
+    ) {
+      return true;
+    }
+    return false;
+  });
   const toggleMapStyle = () => {
     setMapStyle((prev) =>
       prev.includes('streets') ? SATELLITE_URL : STREETS_V4_URL
@@ -54,15 +68,6 @@ export default function Index() {
     setDarkMode((mode) => !mode);
   };
 
-  const changeTripEndpoint = () => {
-    if (trip) {
-      setHome([-60.688798780339226, -31.635692179155193]);
-    } else {
-      setHome([-60.715926228085266, -31.636315286439974]);
-    }
-    setTrip(!trip);
-  };
-
   useEffect(() => {
     if (darkMode) {
       setMapStyle(DATAVIZ_DARK_URL);
@@ -70,6 +75,18 @@ export default function Index() {
       setMapStyle(STREETS_V4_URL);
     }
   }, [darkMode]);
+
+  // useEffect(() => {
+  //   const runRideTrip = async () => {
+  //     if (tripCoordinates.length > 0 && tripActive) {
+  //       console.log('🟢 tripCoordinates actualizado:', tripCoordinates.length);
+  //       await rideTrip(); // tu función async
+  //       endTrip();
+  //       console.log('✅ Viaje terminado');
+  //     }
+  //   };
+  //   runRideTrip();
+  // }, [tripCoordinates]);
 
   // Polyline simulada (recorrido)
   const routeGeoJSON: FeatureCollection<LineString> = {
@@ -110,25 +127,56 @@ export default function Index() {
     );
   };
 
-  const navigateRoute = async () => {
-    setShowRoute(true);
-    setPitch(85);
-    // const coordinates = routeGeoJSON.features[0].geometry.coordinates;
-    setTripCoordinates(routeGeoJSON.features[0].geometry.coordinates);
+  const setTripCoordinatesAsync = (coords: Position[]) =>
+    new Promise<void>((resolve) => {
+      setTripCoordinates(coords);
+      requestAnimationFrame(() => resolve());
+    });
 
-    for (let i = 0; i < tripCoordinates.length; i++) {
-      const coord = tripCoordinates[i];
+  const beginTrip = async () => {
+    togglePitch();
+    const coords = tripCoordinates.length
+      ? tripCoordinates
+      : routeGeoJSON.features[0].geometry.coordinates;
+    setTripActive(true);
+    setShowRoute(true);
+    await setTripCoordinatesAsync(coords);
+    return coords;
+  };
+
+  const endTrip = async (coords: Position[]) => {
+    togglePitch();
+    setTripActive(false);
+    const reversed = [...coords].reverse();
+    await setTripCoordinatesAsync(reversed);
+    setHome(reversed[0]);
+  };
+
+  const rideTrip = async (coords: Position[]) => {
+    for (let i = 0; i < coords.length; i++) {
+      const coord = coords[i];
       cameraRef.current?.flyTo(coord, 2500);
       setMarkerCoord(coord as [number, number]);
       await new Promise((res) => setTimeout(res, 1500));
     }
+  };
 
-    setPitch(0);
-    setTripActive(false);
-    setTripCoordinates(routeGeoJSON.features[0].geometry.coordinates.reverse());
-    setHome(tripCoordinates[0] as [number, number]);
-    await new Promise((res) => setTimeout(res, 1500));
-    centerCameraOnMiddleTrip();
+  const navigateRoute = async () => {
+    const coords = await beginTrip();
+
+    const direction =
+      coords[0][0] === routeGeoJSON.features[0].geometry.coordinates[0][0]
+        ? 'forward'
+        : 'backward';
+
+    console.log('🚀 Dirección actual:', direction);
+    await new Promise((res) => setTimeout(res, 100));
+
+    // 3️⃣ Ejecutar el viaje
+    await rideTrip(coords);
+
+    // 4️⃣ Finalizar viaje
+    await endTrip(coords);
   };
 
   const handleLongPress = async (feature: any) => {
@@ -208,47 +256,12 @@ export default function Index() {
           <MarkerView id='marker' coordinate={markerCoord!}>
             <View style={styles.touchableContainer}>
               <TouchableOpacity style={styles.touchable}>
-                <FontAwesome6 name='car' size={26} color='red' />
+                <FontAwesome6 name='car' size={26} color={LIGHT_YELLOW} />
               </TouchableOpacity>
             </View>
           </MarkerView>
         </MapView>
-        <TouchableOpacity
-          style={[styles.button, styles.buttonFly]}
-          onPress={() => {
-            setZoom(10);
-            changeTripEndpoint();
-            setZoom(16);
-          }}
-        >
-          {trip ? (
-            <Ionicons name='home' size={22} color='black' />
-          ) : (
-            <Ionicons name='flag' size={22} color='black' />
-          )}
-        </TouchableOpacity>
-        {/* <TouchableOpacity
-          disabled={tripActive}
-          style={[
-            styles.button,
-            styles.buttonTravel,
-            tripActive && styles.backgroundActionButton,
-          ]}
-          onPress={() => {
-            setTripActive(true);
-            navigateRoute();
-          }}
-        >
-          {!tripActive ? (
-            <FontAwesome6 name='car-side' size={24} color='black' />
-          ) : (
-            <MaterialCommunityIcons
-              name='map-marker-path'
-              size={24}
-              color='black'
-            />
-          )}
-        </TouchableOpacity> */}
+
         <SimpleAnimatedButton
           tripActive={tripActive}
           navigateRoute={navigateRoute}
@@ -308,12 +321,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 4,
   },
-  buttonFly: {
-    top: 50,
-    left: 20,
-  },
   buttonTravel: {
-    top: 120,
+    top: 50,
     left: 20,
   },
   backgroundActionButton: {
