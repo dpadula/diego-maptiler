@@ -151,12 +151,39 @@ export default function Index() {
     await tooglePitchAsync();
   };
 
+  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+  const interpolateCoords = (
+    a: Position,
+    b: Position,
+    steps: number
+  ): Position[] => {
+    const [lon1, lat1] = a;
+    const [lon2, lat2] = b;
+    const result: Position[] = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      result.push([lon1 + (lon2 - lon1) * t, lat1 + (lat2 - lat1) * t]);
+    }
+    return result;
+  };
+
   const rideTrip = async (coords: Position[]) => {
-    for (let i = 0; i < coords.length; i++) {
-      const coord = coords[i];
-      cameraRef.current?.flyTo(coord, 2500);
-      setMarkerCoord(coord as [number, number]);
-      await new Promise((res) => setTimeout(res, 1500));
+    const stepsPerSegment = 20; // más = más suave
+    const stepDuration = 200; // ms
+
+    for (let i = 0; i < coords.length - 1; i++) {
+      const segment = interpolateCoords(
+        coords[i],
+        coords[i + 1],
+        stepsPerSegment
+      );
+
+      for (const coord of segment) {
+        cameraRef.current?.flyTo(coord, stepDuration);
+        setMarkerCoord(coord as [number, number]);
+        await sleep(stepDuration);
+      }
     }
   };
 
@@ -235,7 +262,7 @@ export default function Index() {
             centerCoordinate={home}
             zoomLevel={zoom}
             animationDuration={2500}
-            animationMode='easeTo'
+            animationMode='flyTo'
           />
           {/* Paseo en auto */}
           {showRoute && (
