@@ -8,7 +8,7 @@ import {
   LineLayer,
   MapView,
   MapViewRef,
-  PointAnnotation,
+  MarkerView,
   ShapeSource,
 } from '@maplibre/maplibre-react-native';
 import type { FeatureCollection, LineString, Position } from 'geojson';
@@ -205,9 +205,13 @@ export default function Index() {
             </ShapeSource>
           )}
 
-          <PointAnnotation id='marker' coordinate={markerCoord!}>
-            <FontAwesome6 name='car' size={32} color='red' />
-          </PointAnnotation>
+          <MarkerView id='marker' coordinate={markerCoord!}>
+            <View style={styles.touchableContainer}>
+              <TouchableOpacity style={styles.touchable}>
+                <FontAwesome6 name='car' size={32} color='red' />
+              </TouchableOpacity>
+            </View>
+          </MarkerView>
         </MapView>
         <TouchableOpacity
           style={[styles.button, styles.buttonFly]}
@@ -314,5 +318,18 @@ const styles = StyleSheet.create({
   },
   backgroundActionButton: {
     backgroundColor: LIGHT_YELLOW,
+  },
+  touchableContainer: {
+    borderColor: 'black',
+    borderWidth: 1.0,
+    width: 60,
+  },
+  touchable: {
+    backgroundColor: 'blue',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
