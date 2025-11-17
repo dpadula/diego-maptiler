@@ -3,6 +3,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
   CameraRef,
+  FillLayer,
   LineLayer,
   Logger,
   MapView,
@@ -24,6 +25,7 @@ import {
   SATELLITE_URL,
   STREETS_V4_URL,
 } from '../data/constants';
+import { useGeoJsonLayer } from '../hooks/useGeoJsonLayer';
 import { useUserLocation } from '../hooks/useUserLocation';
 
 export default function Index() {
@@ -45,6 +47,13 @@ export default function Index() {
   const [tripActive, setTripActive] = useState(false);
   const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
   const { coords: userCoords, permissionGranted } = useUserLocation(); // Para solicitar permisos de ubicacion
+  const {
+    data: geojson,
+    loading,
+    error,
+  } = useGeoJsonLayer(
+    'https://servicios.epe.santafe.gov.ar/api/cortes/rosario'
+  );
 
   // Configuraciones de MapLibre para ignorar logs no deseados
   Logger.setLogCallback((log) => {
@@ -276,6 +285,25 @@ export default function Index() {
                   lineWidth: 4,
                   lineJoin: 'round',
                   lineCap: 'round',
+                }}
+              />
+            </ShapeSource>
+          )}
+
+          {geojson && (
+            <ShapeSource id='source-geojson' shape={geojson}>
+              <LineLayer
+                id='line-geojson'
+                style={{
+                  lineColor: '#ff0000',
+                  lineWidth: 4,
+                }}
+              />
+
+              <FillLayer
+                id='fill-geojson'
+                style={{
+                  fillColor: 'rgba(255,0,0,0.3)',
                 }}
               />
             </ShapeSource>
