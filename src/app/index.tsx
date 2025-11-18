@@ -37,6 +37,7 @@ export default function Index() {
   const [pitch, setPitch] = useState(0);
   const [showRoute, setShowRoute] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [showCuts, setShowCuts] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
     null
   );
@@ -47,14 +48,14 @@ export default function Index() {
   const [tripActive, setTripActive] = useState(false);
   const [home, setHome] = useState([-60.688798780339226, -31.635692179155193]);
   const { coords: userCoords, permissionGranted } = useUserLocation(); // Para solicitar permisos de ubicacion
-  const {
-    data: geojson,
-    loading,
-    error,
-  } = useGeoJsonLayer(
-    'https://servicios.epe.santafe.gov.ar/api/cortes/rosario'
-  );
+  const { data: geojson, loading, error, load } = useGeoJsonLayer();
 
+  const loadCortes = () => {
+    load([
+      'https://servicios.epe.santafe.gov.ar/api/cortes/rosario',
+      'https://servicios.epe.santafe.gov.ar/api/cortes/santafe',
+    ]);
+  };
   // Configuraciones de MapLibre para ignorar logs no deseados
   Logger.setLogCallback((log) => {
     const { message } = log;
@@ -77,6 +78,11 @@ export default function Index() {
   };
   const toggleMapMode = () => {
     setDarkMode((mode) => !mode);
+  };
+
+  const toggleCuts = () => {
+    loadCortes();
+    setShowCuts((mode) => !mode);
   };
 
   useEffect(() => {
@@ -259,6 +265,7 @@ export default function Index() {
             }
             if (coords) {
               setSelectedCoords(coords);
+              setHome(coords);
               handlePresentSuscribeModal();
             }
           }}
@@ -290,7 +297,7 @@ export default function Index() {
             </ShapeSource>
           )}
 
-          {geojson && (
+          {showCuts && (
             <ShapeSource id='source-geojson' shape={geojson}>
               <LineLayer
                 id='line-geojson'
@@ -332,9 +339,11 @@ export default function Index() {
           onToggleStyle={toggleMapStyle}
           onToggleMode={toggleMapMode}
           onTogglePitch={togglePitch}
+          onLoadCuts={toggleCuts}
           pitch={pitch}
           darkMode={darkMode}
           mapStyle={mapStyle}
+          showCuts={showCuts}
           onToggleRoute={() => {
             centerCameraOnMiddleTrip();
             setShowRoute((r) => !r);
@@ -345,6 +354,8 @@ export default function Index() {
         <LocationBottomSheet
           darkMode={darkMode}
           onSetDarkMode={toggleMapMode}
+          energyCuts={showCuts}
+          onSetEnergyCuts={toggleCuts}
           ref={bottomSheetRef}
           coordinates={selectedCoords}
         />

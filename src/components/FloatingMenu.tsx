@@ -3,6 +3,7 @@ import {
   FontAwesome,
   FontAwesome6,
   Ionicons,
+  MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -22,9 +23,11 @@ type FloatingMenuProps = {
   onToggleRoute: () => void;
   onToggleMode: () => void;
   onTogglePitch: () => void;
+  onLoadCuts: () => void;
   mapStyle?: string;
   pitch?: number;
   darkMode?: boolean;
+  showCuts?: boolean;
 };
 
 const FloatingMenu = ({
@@ -34,9 +37,11 @@ const FloatingMenu = ({
   onToggleRoute,
   onToggleMode,
   onTogglePitch,
+  onLoadCuts,
   mapStyle,
   pitch,
   darkMode,
+  showCuts,
 }: FloatingMenuProps) => {
   const [open, setOpen] = useState(false);
   const animation = useSharedValue(0);
@@ -99,6 +104,18 @@ const FloatingMenu = ({
         <Ionicons name='moon' size={22} color='black' />
       ),
       onPress: onToggleMode,
+    },
+    {
+      icon: showCuts ? (
+        <MaterialCommunityIcons name='lightning-bolt' size={24} color='black' />
+      ) : (
+        <MaterialCommunityIcons
+          name='lightning-bolt-outline'
+          size={24}
+          color='black'
+        />
+      ),
+      onPress: onLoadCuts,
     },
     {
       icon: pitch ? (

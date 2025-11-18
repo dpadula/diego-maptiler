@@ -14,84 +14,104 @@ import { BLUE, Colors, YELLOW } from '../data/Colors';
 type LocationBottomSheetProps = {
   coordinates: [number, number] | null;
   darkMode: boolean;
+  energyCuts: boolean;
   onSetDarkMode: () => void;
+  onSetEnergyCuts: () => void;
 };
 
 const LocationBottomSheet = forwardRef<
   BottomSheetModal,
   LocationBottomSheetProps
->(({ coordinates, onSetDarkMode, darkMode }, ref) => {
-  const [tags, setTags] = useState([
-    'zona A',
-    'checkpoint',
-    'punto de interés',
-  ]);
-  const snapPoints = useMemo(() => ['50%'], []);
-  const { dismiss } = useBottomSheetModal();
-  const { bottom } = useSafeAreaInsets();
+>(
+  (
+    { coordinates, onSetDarkMode, darkMode, onSetEnergyCuts, energyCuts },
+    ref
+  ) => {
+    const [tags, setTags] = useState([
+      'zona A',
+      'checkpoint',
+      'punto de interés',
+    ]);
+    const snapPoints = useMemo(() => ['50%'], []);
+    const { dismiss } = useBottomSheetModal();
+    const { bottom } = useSafeAreaInsets();
 
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        opacity={0.6}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        {...props}
-        onPress={dismiss}
-      />
-    ),
-    [dismiss]
-  );
-  return (
-    <BottomSheetModal
-      ref={ref}
-      index={0}
-      snapPoints={snapPoints}
-      backdropComponent={renderBackdrop}
-      handleComponent={null}
-      enableDynamicSizing={false}
-    >
-      <BottomSheetView style={styles.content}>
-        <View style={styles.modalBtns}>
-          <TouchableOpacity onPress={() => dismiss()}>
-            <Ionicons name='close' size={28} color={Colors.light.gray} />
-          </TouchableOpacity>
-        </View>
-        {coordinates ? (
-          <>
-            <Text style={styles.title}>
-              <Ionicons name='location' size={22} color='red' /> Ubicación
-              seleccionada
-            </Text>
-            <Text style={styles.coord}>Lng: {coordinates[0].toFixed(5)}</Text>
-            <Text style={styles.coord}>Lat: {coordinates[1].toFixed(5)}</Text>
-
-            <Text style={styles.subtitle}>Etiquetas</Text>
-            {tags.map((t, i) => (
-              <Text key={i} style={styles.tag}>
-                • {t}
+    const renderBackdrop = useCallback(
+      (props: any) => (
+        <BottomSheetBackdrop
+          opacity={0.6}
+          appearsOnIndex={0}
+          disappearsOnIndex={-1}
+          {...props}
+          onPress={dismiss}
+        />
+      ),
+      [dismiss]
+    );
+    return (
+      <BottomSheetModal
+        ref={ref}
+        index={0}
+        snapPoints={snapPoints}
+        backdropComponent={renderBackdrop}
+        handleComponent={null}
+        enableDynamicSizing={false}
+      >
+        <BottomSheetView style={styles.content}>
+          <View style={styles.modalBtns}>
+            <TouchableOpacity onPress={() => dismiss()}>
+              <Ionicons name='close' size={28} color={Colors.light.gray} />
+            </TouchableOpacity>
+          </View>
+          {coordinates ? (
+            <>
+              <Text style={styles.title}>
+                <Ionicons name='location' size={22} color='red' /> Ubicación
+                seleccionada
               </Text>
-            ))}
+              <Text style={styles.coord}>Lng: {coordinates[0].toFixed(5)}</Text>
+              <Text style={styles.coord}>Lat: {coordinates[1].toFixed(5)}</Text>
 
-            <View style={styles.switchContainer}>
-              <Text>Modo oscuro</Text>
-              <Switch
-                style={styles.switch}
-                value={darkMode}
-                //   onChange={() => setDark(!dark)}
-                onValueChange={onSetDarkMode}
-                trackColor={{ false: Colors.dark.background, true: BLUE }}
-                thumbColor={darkMode ? YELLOW : Colors.light.background}
-              />
-            </View>
-          </>
-        ) : (
-          <Text style={styles.title}>Tocá en el mapa para ver coordenadas</Text>
-        )}
-      </BottomSheetView>
-    </BottomSheetModal>
-  );
-});
+              <Text style={styles.subtitle}>Etiquetas</Text>
+              {tags.map((t, i) => (
+                <Text key={i} style={styles.tag}>
+                  • {t}
+                </Text>
+              ))}
+
+              <View style={styles.switchContainer}>
+                <Text>Modo oscuro</Text>
+                <Switch
+                  style={styles.switch}
+                  value={darkMode}
+                  //   onChange={() => setDark(!dark)}
+                  onValueChange={onSetDarkMode}
+                  trackColor={{ false: Colors.dark.background, true: BLUE }}
+                  thumbColor={darkMode ? YELLOW : Colors.light.background}
+                />
+              </View>
+              <View style={styles.switchContainer}>
+                <Text>Ver Cortes</Text>
+                <Switch
+                  style={styles.switch}
+                  value={energyCuts}
+                  //   onChange={() => setDark(!dark)}
+                  onValueChange={onSetEnergyCuts}
+                  trackColor={{ false: Colors.dark.background, true: BLUE }}
+                  thumbColor={energyCuts ? YELLOW : Colors.light.background}
+                />
+              </View>
+            </>
+          ) : (
+            <Text style={styles.title}>
+              Tocá en el mapa para ver coordenadas
+            </Text>
+          )}
+        </BottomSheetView>
+      </BottomSheetModal>
+    );
+  }
+);
 
 LocationBottomSheet.displayName = 'LocationBottomSheet'; // 👈 Solución al warning
 
