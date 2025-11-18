@@ -1,23 +1,21 @@
-import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Camera,
   CameraRef,
-  FillLayer,
-  LineLayer,
   Logger,
   MapView,
   MapViewRef,
-  MarkerView,
-  ShapeSource,
 } from '@maplibre/maplibre-react-native';
 import { distance } from '@turf/turf';
-import type { FeatureCollection, LineString, Position } from 'geojson';
+import type { Position } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CarMarker from '../components/CarMarker';
+import CutsLayer from '../components/CutsLayer';
 import FloatingMenu from '../components/FloatingMenu';
 import LocationBottomSheet from '../components/LocationBottomSheet';
+import RouteLayer from '../components/RouteLayer';
 import SimpleAnimatedButton from '../components/SimpleAnimatedButton';
 import { LIGHT_YELLOW } from '../data/Colors';
 import {
@@ -25,6 +23,7 @@ import {
   SATELLITE_URL,
   STREETS_V4_URL,
 } from '../data/constants';
+import { routeGeoJSON } from '../data/route';
 import { useGeoJsonLayer } from '../hooks/useGeoJsonLayer';
 import { useUserLocation } from '../hooks/useUserLocation';
 
@@ -52,8 +51,8 @@ export default function Index() {
 
   const loadCortes = () => {
     load([
-      'https://servicios.epe.santafe.gov.ar/api/cortes/rosario',
-      'https://servicios.epe.santafe.gov.ar/api/cortes/santafe',
+      'https://servicios.epe.santafe.gov.ar/geoapi/cortes/rosario',
+      'https://servicios.epe.santafe.gov.ar/geoapi/cortes/santafe',
     ]);
   };
   // Configuraciones de MapLibre para ignorar logs no deseados
@@ -92,35 +91,6 @@ export default function Index() {
       setMapStyle(STREETS_V4_URL);
     }
   }, [darkMode]);
-
-  // Polyline simulada (recorrido)
-  const routeGeoJSON: FeatureCollection<LineString> = {
-    type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [-60.68882160856778, -31.635688229009155],
-            [-60.689337563333964, -31.635579941550652],
-            [-60.689868648350796, -31.63739765884189],
-            [-60.6909333501216, -31.6371737938233],
-            [-60.691990249076554, -31.636929568893102],
-            [-60.69227425690693, -31.63793253917457],
-            [-60.69284839952242, -31.639822812351177],
-            [-60.69495669481357, -31.63935008438898],
-            [-60.69575864588114, -31.642078915813777],
-            [-60.71626953995822, -31.637468498535185],
-            [-60.71762400586759, -31.637153389249143],
-            [-60.717302027741624, -31.636022910582795],
-            [-60.715926228085266, -31.636315286439974],
-          ],
-        },
-        properties: {},
-      },
-    ],
-  };
 
   const centerCameraOnMiddleTrip = () => {
     const coords = routeGeoJSON.features[0].geometry.coordinates;
@@ -296,46 +266,12 @@ export default function Index() {
             animationMode='flyTo'
           />
           {/* Paseo en auto */}
-          {showRoute && (
-            <ShapeSource id='route' shape={routeGeoJSON}>
-              <LineLayer
-                id='lineLayer'
-                style={{
-                  lineColor: '#007AFF',
-                  lineWidth: 4,
-                  lineJoin: 'round',
-                  lineCap: 'round',
-                }}
-              />
-            </ShapeSource>
-          )}
+          {showRoute && <RouteLayer routeGeoJson={routeGeoJSON} />}
 
-          {showCuts && (
-            <ShapeSource id='source-geojson' shape={geojson}>
-              <LineLayer
-                id='line-geojson'
-                style={{
-                  lineColor: '#ff0000',
-                  lineWidth: 4,
-                }}
-              />
+          {/* Mostrar cortes en el mapa */}
+          {showCuts && <CutsLayer geojson={geojson} />}
 
-              <FillLayer
-                id='fill-geojson'
-                style={{
-                  fillColor: 'rgba(255,0,0,0.3)',
-                }}
-              />
-            </ShapeSource>
-          )}
-
-          <MarkerView id='marker' coordinate={markerCoord!}>
-            <View style={styles.touchableContainer}>
-              <TouchableOpacity style={styles.touchable}>
-                <FontAwesome6 name='car' size={26} color={LIGHT_YELLOW} />
-              </TouchableOpacity>
-            </View>
-          </MarkerView>
+          <CarMarker coordinate={markerCoord!} />
         </MapView>
 
         <SimpleAnimatedButton
