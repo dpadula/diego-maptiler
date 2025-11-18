@@ -234,7 +234,7 @@ export default function Index() {
       'coordinates' in event.geometry
     ) {
       coords = event.geometry.coordinates as [number, number];
-      console.log('🚀 ~ handlePress ~ coords:', coords);
+      // console.log('🚀 ~ handlePress ~ coords:', coords);
     }
 
     if (coords) {
@@ -243,7 +243,7 @@ export default function Index() {
   };
 
   const handleLongPress = async (feature: any) => {
-    console.log('Evento de LongPress en:', feature.geometry.coordinates);
+    // console.log('Evento de LongPress en:', feature.geometry.coordinates);
     const coords = validateCoordinates(feature);
 
     // 2. Usar la referencia para obtener el zoom
@@ -252,7 +252,7 @@ export default function Index() {
         // MapLibreGL.MapView.getZoom() es un método asíncrono
         const zoomLevel = await mapRef.current.getZoom();
 
-        console.log('✅ Nivel de Zoom Actual:', zoomLevel);
+        // console.log('✅ Nivel de Zoom Actual:', zoomLevel);
         // Puedes guardarlo en el estado si necesitas usarlo en el UI
         setZoom(zoomLevel);
         setHome(coords);
