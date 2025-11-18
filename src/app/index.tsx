@@ -138,6 +138,9 @@ export default function Index() {
       requestAnimationFrame(() => resolve());
     });
 
+  const togglePitch = () => {
+    setPitch((prev) => (prev === 0 ? 85 : 0));
+  };
   const tooglePitchAsync = async () => {
     togglePitch();
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -222,11 +225,29 @@ export default function Index() {
     await endTrip(coords);
   };
 
+  const validateCoordinates = (event: any) => {
+    let coords: [number, number] | null = null;
+
+    if (
+      event.geometry &&
+      event.geometry.type !== 'GeometryCollection' &&
+      'coordinates' in event.geometry
+    ) {
+      coords = event.geometry.coordinates as [number, number];
+      console.log('🚀 ~ handlePress ~ coords:', coords);
+    }
+
+    if (coords) {
+      return coords;
+    }
+  };
+
   const handleLongPress = async (feature: any) => {
     console.log('Evento de LongPress en:', feature.geometry.coordinates);
+    const coords = validateCoordinates(feature);
 
     // 2. Usar la referencia para obtener el zoom
-    if (mapRef.current) {
+    if (mapRef.current && coords) {
       try {
         // MapLibreGL.MapView.getZoom() es un método asíncrono
         const zoomLevel = await mapRef.current.getZoom();
@@ -234,17 +255,24 @@ export default function Index() {
         console.log('✅ Nivel de Zoom Actual:', zoomLevel);
         // Puedes guardarlo en el estado si necesitas usarlo en el UI
         setZoom(zoomLevel);
+        setHome(coords);
       } catch (error) {
         console.error('Error al obtener el nivel de zoom:', error);
       }
     }
   };
+
   const handlePresentSuscribeModal = () => {
     bottomSheetRef.current?.present();
   };
 
-  const togglePitch = () => {
-    setPitch((prev) => (prev === 0 ? 85 : 0));
+  const handlePress = (event: any) => {
+    const coords = validateCoordinates(event);
+    if (coords) {
+      setSelectedCoords(coords);
+      setHome(coords);
+      handlePresentSuscribeModal();
+    }
   };
 
   return (
@@ -253,22 +281,7 @@ export default function Index() {
         <MapView
           ref={mapRef}
           onLongPress={handleLongPress}
-          onPress={(event) => {
-            let coords: [number, number] | null = null;
-            if (
-              event.geometry &&
-              event.geometry.type !== 'GeometryCollection' &&
-              'coordinates' in event.geometry
-            ) {
-              coords = event.geometry.coordinates as [number, number];
-              console.log('🚀 ~ Index ~ coords:', coords);
-            }
-            if (coords) {
-              setSelectedCoords(coords);
-              setHome(coords);
-              handlePresentSuscribeModal();
-            }
-          }}
+          onPress={handlePress}
           style={styles.map}
           mapStyle={mapStyle}
           logoEnabled={false}
